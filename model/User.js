@@ -30,7 +30,10 @@ const UserSchema = new Schema({
 
 UserSchema.pre('save', function(next) {
     const user = this
-    bcrypt.hash(user.password, 10, (error, hash) => {
+    if (!user.isModified('password')) return next()
+
+    bcrypt.genSalt(user.password, 10, (error, hash) => {
+        if (error) return next(error)
         user.password = hash
         next()
     })
